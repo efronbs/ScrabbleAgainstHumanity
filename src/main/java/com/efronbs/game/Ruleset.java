@@ -1,6 +1,8 @@
-package com.efronbs.model;
+package com.efronbs.game;
 
 /**
+ * Controller object.
+ *
  * Implementations are assumed to be thread safe. Implementor must explicitly document if implementation is not thread
  * safe.
  */

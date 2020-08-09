@@ -1,4 +1,4 @@
-package com.efronbs.model;
+package com.efronbs.game;
 
 // Optimized class representing a space on the scrabble board
 // NOTE: this class is mutable and is INTENDED to be mutated, and unless explicitly stated in the javadocs, all state

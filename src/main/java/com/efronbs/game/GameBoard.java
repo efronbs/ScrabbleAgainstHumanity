@@ -1,7 +1,10 @@
-package com.efronbs.model;
+package com.efronbs.game;
 
 import java.util.Locale;
 
+/**
+ * Model object.
+ */
 public final class GameBoard {
 
     private final int size;
@@ -35,28 +38,6 @@ public final class GameBoard {
         return board[row][column];
     }
 
-    // TODO eventually the board should probably be split from the ruleset, which can manage points and
-    // valid plays and such. The board should just manage state and maybe include utility methods that make
-    // implementing rulesets easier.
-    // TODO checks should just be raw correctness. For example, ensure word isn't placed of the board and won't run
-    //  off the board should be checked, to prevent index out of bounds exception. Things like empty words, overrunning
-    //  other words, etc. should NOT be checked. That is the responsibility of the ruleset
-    public boolean isWordValid(String word, Direction direction, int row, int column) {
-        // initial space is not on the board
-        Point p = Point.of(row, column);
-        if (!isInBounds(p)) {
-            return false;
-        }
-
-        p.toEndOfWord(direction, word);
-        if (!isInBounds(p)) {
-            return false;
-        }
-
-        // intentionally split final check from the default "true" return to ease adding extra checks in the future.
-        return true;
-    }
-
     public boolean isInBounds(Point p) {
         return p.getRow() >= 0 && p.getRow() < size
                 && p.getColumn() >= 0 && p.getColumn() < size;
@@ -64,20 +45,23 @@ public final class GameBoard {
 
     // TODO this should probably return point value, or at least the list of letters that did not intersect???
     public void addWord(String word, Direction direction, int row, int column) {
-        if (!isWordValid(word, direction, row, column)) {
+        try {
+            String asUpperCase = word.toUpperCase(Locale.ENGLISH);
+            Point p = Point.of(row, column);
+            for (Character c : asUpperCase.toCharArray()) {
+                board[p.getRow()][p.getColumn()] = c;
+                p.increment(direction);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // since game board should be managed by a controller, bounds should always be validated before a word is
+            // added. This block won't be hit frequently, so the cost of the exception is pretty low. In fact this might
+            // be MORE efficient than a direct check, as we are relying
             throw new IllegalArgumentException(
                     "Word " + word +
                             " at location (" + row + "," + column + ")" +
                             " in direction " + direction.asName() +
                             " is not valid on game board:\n" + toString()
             );
-        }
-
-        String asUpperCase = word.toUpperCase(Locale.ENGLISH);
-        Point p = Point.of(row, column);
-        for (Character c : asUpperCase.toCharArray()) {
-            board[p.getRow()][p.getColumn()] = c;
-            p.increment(direction);
         }
         empty = false;
     }
@@ -95,5 +79,4 @@ public final class GameBoard {
         }
         return output.toString();
     }
-
 }

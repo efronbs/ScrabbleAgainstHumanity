@@ -1,4 +1,4 @@
-package com.efronbs.model;
+package com.efronbs.game;
 
 import java.util.Locale;
 

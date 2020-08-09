@@ -1,4 +1,4 @@
-package com.efronbs.model;
+package com.efronbs.game;
 
 import java.util.Locale;
 
@@ -41,6 +41,10 @@ public class SimpleRuleset implements Ruleset {
             int row,
             int column
     ) {
+        if (!wordFitsOnBoard(board, word, direction, row, column)) {
+
+        }
+
         Point p = Point.of(row, column);
         if (!endInBounds(board, p, word, direction)) {
             return false;
@@ -76,9 +80,26 @@ public class SimpleRuleset implements Ruleset {
         return true;
     }
 
+    private boolean wordFitsOnBoard(GameBoard board, String word, Direction direction, int row, int column) {
+        // initial space is not on the board
+        Point p = Point.of(row, column);
+        if (!board.isInBounds(p)) {
+            return false;
+        }
+
+        p.toEndOfWord(direction, word);
+        if (!board.isInBounds(p)) {
+            return false;
+        }
+
+        // intentionally split final check from the default "true" return to ease adding extra checks in the future.
+        return true;
+    }
+
     private boolean endInBounds(GameBoard board, Point p, String word, Direction direction) {
         Point end = p.copy();
         end.toEndOfWord(direction, word);
         return board.isInBounds(end);
     }
+
 }
