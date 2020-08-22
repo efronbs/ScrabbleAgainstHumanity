@@ -42,13 +42,10 @@ public class SimpleRuleset implements Ruleset {
             int column
     ) {
         if (!wordFitsOnBoard(board, word, direction, row, column)) {
-
+            return false;
         }
 
         Point p = Point.of(row, column);
-        if (!endInBounds(board, p, word, direction)) {
-            return false;
-        }
         p.decrement(direction);
         String asUpperCase = word.toUpperCase(Locale.ENGLISH);
         boolean intersect = false;
@@ -70,10 +67,12 @@ public class SimpleRuleset implements Ruleset {
         }
 
         // if board is empty the placed word must go over the center square
-        Point centerSquare = Point.of(board.getSize() / 2, board.getSize() / 2);
-        Point start = Point.of(row, column);
-        if (!centerSquare.isOnLine(start, p)) {
-            return false;
+        if (board.isEmpty()) {
+            Point centerSquare = Point.of(board.getSize() / 2, board.getSize() / 2);
+            Point start = Point.of(row, column);
+            if (!centerSquare.isOnLine(start, p)) {
+                return false;
+            }
         }
 
         // intentionally split from final check to make adding more checks more intuitive
