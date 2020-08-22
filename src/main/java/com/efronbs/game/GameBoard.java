@@ -1,6 +1,6 @@
 package com.efronbs.game;
 
-import java.util.Locale;
+import java.util.*;
 
 /**
  * Model object.
@@ -28,6 +28,20 @@ public final class GameBoard {
 
     public boolean isEmpty() {
         return empty;
+    }
+
+    // Streaming and converting to list does not seem to work...
+    public List<List<Character>> getRows() {
+        List<List<Character>> result = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            List<Character> row = new ArrayList<>();
+            for (int j = 0; j < size; j++) {
+                row.add(board[i][j]);
+            }
+            result.add(Collections.unmodifiableList(row));
+        }
+
+        return Collections.unmodifiableList(result);
     }
 
     public char charAt(int row, int column) {

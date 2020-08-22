@@ -9,12 +9,10 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 public class SimpleServer {
 
@@ -90,12 +88,40 @@ public class SimpleServer {
                 throw new IllegalArgumentException("board state endpoint only handles GET requests");
             }
 
-            String response = SimpleServer.this.board.toString();
-            exchange.sendResponseHeaders(200, response.length());
+
+            Map<String, String> params = parseQueryParameters(exchange.getRequestURI().getQuery());
             OutputStream outputStream = exchange.getResponseBody();
-            outputStream.write(response.getBytes());
+            String result;
+            if (params.containsKey("format") && params.get("format").equalsIgnoreCase("pretty")) {
+                result = prettyResponse();
+            } else {
+                result = parsableResponse();
+            }
+            exchange.sendResponseHeaders(200, result.length());
+
+            outputStream.write(result.getBytes());
             outputStream.flush();
             outputStream.close();
+        }
+
+        private String prettyResponse() throws IOException {
+            return SimpleServer.this.board.toString();
+        }
+
+        private String parsableResponse() throws IOException {
+            List<List<Character>> result = SimpleServer.this.board.getRows();
+            return SimpleServer.this.objectMapper.writeValueAsString(result);
+        }
+
+        private Map<String, String> parseQueryParameters(String queryString) {
+            String[] split = queryString.split("&");
+            return Arrays.stream(split)
+                    .map(pair -> pair.split("="))
+                    .filter(splitPair -> splitPair.length == 2)
+                    .collect(Collectors.toMap(
+                            sp -> sp[0],
+                            sp -> sp[1]
+                    ));
         }
     }
 
